@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=C:\Users\manma\rust-2024\rust_discord_bot\target\debug\build\mime_guess-1e9fe2ed1bbc20be\out\mime_types_generated.rs

@@ -1,0 +1,10 @@
+C:\Users\manma\rust-2024\rust_discord_bot\target\debug\deps\libasync_tungstenite-ad4b581961c51f4f.rmeta: C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\lib.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\compat.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\handshake.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\stream.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio\rustls.rs
+
+C:\Users\manma\rust-2024\rust_discord_bot\target\debug\deps\async_tungstenite-ad4b581961c51f4f.d: C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\lib.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\compat.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\handshake.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\stream.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio.rs C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio\rustls.rs
+
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\lib.rs:
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\compat.rs:
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\handshake.rs:
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\stream.rs:
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio.rs:
+C:\Users\manma\.cargo\registry\src\index.crates.io-6f17d22bba15001f\async-tungstenite-0.17.2\src\tokio\rustls.rs:
