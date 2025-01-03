@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, path::Path};
 
 use serenity::{
     async_trait,
@@ -12,6 +12,7 @@ use rand::seq::SliceRandom;
 
 
 const QUOTE_COMMAND: &str = "!quote";
+const DOCTOR_COMMAND: &str = "!doctor";
 struct Handler;
 
 #[async_trait]
@@ -32,6 +33,31 @@ impl EventHandler for Handler {
                     if let Err(why) = msg.channel_id.say(&ctx.http, error_message).await {
                         println!("Error sending message: {:?}", why);
                     }
+                }
+            }
+        }
+        if msg.content.starts_with(DOCTOR_COMMAND)
+        {
+            if let Some(doctor_number) = msg.content.strip_prefix(DOCTOR_COMMAND)
+            {
+                let file_name = format!("doctors_img/{}-doctor.jpg",doctor_number);
+                let image_path = Path::new(&file_name);
+
+                if image_path.exists()
+                {
+
+                
+                    if let Err(why) = msg.channel_id.send_files(&ctx.http, vec![image_path], |m| {m.content(format!("Here is Doctor {}!", doctor_number))}).await
+                    {
+                        println!("Error sending image :{:?}",why);
+                    }
+                }
+                else 
+                {
+                    if let Err(why) = msg.channel_id.say(&ctx.http, format!("I couldn't find an image for doctor {}.",doctor_number)).await
+                    {
+                        println!("error sending message : {:?}",why);
+                    }    
                 }
             }
         }
