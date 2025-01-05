@@ -8,11 +8,12 @@ use serenity::{
 use std::fs::File;
 use std::io::{self,BufRead};
 use rand::seq::SliceRandom;
-
+use rusqlite::{Connection, Result as SqlResult};
 
 
 const QUOTE_COMMAND: &str = "!quote";
 const DOCTOR_COMMAND: &str = "!doctor";
+const EPISODE_COMMAND: &str = "!episode";
 struct Handler;
 
 #[async_trait]
@@ -61,6 +62,35 @@ impl EventHandler for Handler {
                 }
             }
         }
+        if msg.content.starts_with(EPISODE_COMMAND)
+        {
+            let query = msg.content.strip_prefix(EPISODE_COMMAND).unwrap_or("").trim();
+            if query.is_empty()
+            {
+                if let Err(why) = msg.channel_id.say(&ctx.http, "Please provide a slice of the title's episode.").await
+                {
+                    println!("Error sending message {:?}",why);
+                }
+                return ;
+            }
+            match search_episode(query).await
+            {
+                Ok(response) =>
+                {
+                    if let Err(why) = msg.channel_id.say(&ctx.http, response).await
+                    {
+                        println!("Error sending message {:?}",why);
+                    }
+                }
+                Err(err)=>
+                {
+                    if let Err(why) = msg.channel_id.say(&ctx.http, format!("Error searching for episode {:?}", err)).await
+                    {
+                        println!("Error sending message : {:?}", why);
+                    }
+                }
+            }
+        }
     }
 
     async fn ready(&self, _: Context, ready: Ready) {
@@ -82,7 +112,46 @@ fn get_random_quote(file_path: &str) -> io::Result<String>
         Err(io::Error::new(io::ErrorKind::NotFound, "No quotes found"))
     }
            
-    
+ 
+}
+async fn search_episode(query: &str) ->SqlResult<String>
+{
+    let conn = Connection::open("doctor-who-episodes/doctor_who.db")?;
+    let mut stmt = conn.prepare(
+        "SELECT e.title, e.runtime, s.season_id,s.serial 
+         FROM episodes e
+         JOIN serials s on s.title = e.title
+         WHERE e.title LIKE ?",
+    )?;
+
+    let rows = stmt.query_map([format!("%{}%", query)], |row| 
+    {
+        Ok((
+            row.get::<_, String>(0)?,  // Title
+            row.get::<_, String>(1)?,    // Runtime
+            row.get::<_, i32>(2)?,    // Name
+            row.get::<_, i32>(3)?,    // Episode Order
+        ))
+    })?;
+
+
+    let mut results = Vec::new();
+    for row in rows 
+    {
+        let (title, runtime, season, episode) = row?;
+        results.push(format!(
+            "Title: {}\nRuntime: {} minutes\nSeason: {}\nEpisode: {}",title, runtime, season, episode
+        ));
+    }
+
+    if results.is_empty() 
+    {
+        Ok("No episodes found.".to_string())
+    } 
+    else 
+    {
+        Ok(results.join("\n\n"))
+    }
 }
 
 #[tokio::main]
