@@ -259,7 +259,16 @@ async fn search_episode(query: &str) -> SqlResult<String> {
     if results.is_empty() {
         Ok("No episodes found.".to_string())
     } else {
-        Ok(results.join("\n\n"))
+        let full_result = results.join("\n\n");
+        if full_result.len() >2000
+        {
+            let error_message = String::from("Your search was to big to fit in a message, please search something more speciffic!");
+            Ok(error_message)
+        }
+        else {
+            Ok(full_result)    
+        }
+        
     }
 }
 
