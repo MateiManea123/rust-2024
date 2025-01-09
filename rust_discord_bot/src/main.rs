@@ -15,15 +15,21 @@ const QUOTE_COMMAND: &str = "!quote";
 const DOCTOR_COMMAND: &str = "!doctor";
 const EPISODE_COMMAND: &str = "!episode";
 const SCORE_COMMAND: &str = "!score";
-
+const WELCOME_MESSSAGE: &str = "Hello! I am a Discord Bot made for Doctor Who fans!
+ I will periodically ask random trivia questions, the first who answers correctly gets a point!
+ You can also use any of this commands at any time!
+ - !quote
+ - !doctor<number from 1-13>(no spaces allowed)
+ - !episode <Slice from an episode>
+ - !score";
 struct TriviaData {
-    current_question: Option<(String, String)>, // Întrebarea curentă și răspunsul
-    last_correct: bool,                         // Dacă ultima întrebare a fost răspunsă corect
+    current_question: Option<(String, String)>,
+    last_correct: bool,
 }
 
 struct Handler {
     trivia: Arc<Mutex<TriviaData>>,
-    conn: Arc<Mutex<Connection>>, // Conexiunea la baza de date
+    conn: Arc<Mutex<Connection>>,
 }
 
 impl Handler {
@@ -41,11 +47,9 @@ impl Handler {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        // Trivia: verifică răspunsul
         let mut trivia = self.trivia.lock().await;
         if let Some((_, correct_answer)) = &trivia.current_question {
             if msg.content.trim().eq_ignore_ascii_case(correct_answer) {
-                // Actualizează scorul utilizatorului
                 if let Err(err) =
                     update_user_score(&self.conn, msg.author.id.0, &msg.author.name).await
                 {
@@ -69,7 +73,6 @@ impl EventHandler for Handler {
             }
         }
 
-        // Comanda pentru afișarea scorului
         if msg.content == SCORE_COMMAND {
             match get_user_score(&self.conn, msg.author.id.0, &msg.author.name).await {
                 Ok(score) => {
@@ -85,7 +88,6 @@ impl EventHandler for Handler {
             }
         }
 
-        // Restul comenzilor:
         if msg.content == QUOTE_COMMAND {
             match get_random_quote("Quotes.txt") {
                 Ok(quote) => {
@@ -105,24 +107,26 @@ impl EventHandler for Handler {
                 let image_path = Path::new(&file_name);
 
                 if image_path.exists() {
-                    if let Err(why) = msg
+                    let result = msg
                         .channel_id
                         .send_files(&ctx.http, vec![image_path], |m| {
                             m.content(format!("Here is Doctor {}!", doctor_number))
                         })
-                        .await
-                    {
+                        .await;
+
+                    if let Err(why) = result {
                         println!("Error sending image: {:?}", why);
                     }
                 } else {
-                    if let Err(why) = msg
+                    let result = msg
                         .channel_id
                         .say(
                             &ctx.http,
                             format!("I couldn't find an image for doctor {}.", doctor_number),
                         )
-                        .await
-                    {
+                        .await;
+
+                    if let Err(why) = result {
                         println!("Error sending message: {:?}", why);
                     }
                 }
@@ -165,9 +169,14 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
-        let channel_id =1322549846867054615;
+        let channel_id = 1322549846867054615;
         let trivia = Arc::clone(&self.trivia);
-
+        if let Err(why) = ChannelId(channel_id)
+            .send_message(&ctx.http, |m| m.content(WELCOME_MESSSAGE))
+            .await
+        {
+            println!("Error sending welcome message! {:?}", why);
+        }
         tokio::spawn(async move {
             let questions = vec![
                 ("Who is the first Doctor?", "William Hartnell"),
@@ -254,16 +263,19 @@ async fn search_episode(query: &str) -> SqlResult<String> {
     }
 }
 
-async fn get_user_score(conn: &Arc<Mutex<Connection>>,user_id: u64,username: &str,) -> SqlResult<i32> 
-{
+async fn get_user_score(
+    conn: &Arc<Mutex<Connection>>,
+    user_id: u64,
+    username: &str,
+) -> SqlResult<i32> {
     let conn = conn.lock().await;
     let mut stmt = conn.prepare("SELECT score FROM scores WHERE user_id = ?")?;
-    if let Some(row) = stmt.query_row(params![user_id], |row| row.get(0)).optional()?
+    if let Some(row) = stmt
+        .query_row(params![user_id], |row| row.get(0))
+        .optional()?
     {
         Ok(row)
-    } 
-    else 
-    {
+    } else {
         conn.execute(
             "INSERT INTO scores (user_id, username, score) VALUES (?, ?, 0)",
             params![user_id, username],
